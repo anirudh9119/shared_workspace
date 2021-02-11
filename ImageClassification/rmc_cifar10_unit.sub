@@ -1,0 +1,85 @@
+executable = run_jumbled.sh
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 20 True 1 8 
+error = unit_rmc_baseline_8slots.$(Process).error
+output = unit_rmc_baseline_8slots.$(Process).out
+log = unit_rmc_basline_8slots.$(Process).log
+request_memory = 48000
+request_cpus = 1
+request_gpus = 1
+requirements = TARGET.CUDAGlobalMemoryMb >= 16000
+queue
+
+#model=$1
+#data=$2
+#version=$3
+#num_layers=$4
+#num_templates=1
+#dropout=$5
+#epochs=$6
+#patch_size=$7
+#num_heads=$8
+#batch_size=$9
+#lr=${10}
+#h_dim=${11}
+#ffn_dim=${12}
+#num_gru_schemas=${13}
+#num_attention_schemas=${14}
+#schema_specific=${15}
+#num_eval_layers=${16}
+#share_vanilla_parameters=${17}
+#use_topk=${18}
+#topk=${19}
+#shared_memory_attention=${20}
+#seed=${21}
+#mem_slots=${22}
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 20 True 2 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 20 True 3 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 10 True 1 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 10 True 2 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 10 True 3 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 30 True 1 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 30 True 2 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True True 30 True 3 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True False 10 True 1 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True False 10 True 2 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True False 10 True 3 8
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True False 10 False 1 8
+queue 
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True False 10 False 2 8
+queue 
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 True False 10 False 3 8
+queue 
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 False False 10 False 1 8
+queue 
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 False False 10 False 2 8
+queue 
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 256 512 2 2 True 6 False False 10 False 3 8
+queue 

@@ -1,0 +1,281 @@
+Running on g056
+128key_LnNoDropLSTM-default-data-cifar10-version-0-num_layers-4-num_templates-4-dropout-0.1-epochs-200-patch_size-4-num_heads-4-batch_size-64-lr-0.0001-256-512-2-2-True-6-True-True-20-True-3-8
+Files already downloaded and verified
+Files already downloaded and verified
+line 153
+transformer embed_dim 256
+functional? False
+total heads 4
+head dim 64
+use topk?True
+topk:20
+MEM SLOTS:8
+Null attention:False
+NEW !!! USING SHARED MEMORY ATTENTION +++++++++
+Using gate style unit
+query:32896
+key:32896
+value:65792
+attention_mlp:65792
+layernorm1:512
+layernorm2:512
+input_projector:65792
+input projector:256
+input_gate_projector:208640
+memory_gate_projector:1052672
+relational volatie!!!
+64
+32
+4
+48
+torch.Size([])
+torch.Size([])
+torch.Size([128, 256])
+torch.Size([128])
+torch.Size([128, 256])
+torch.Size([128])
+torch.Size([256, 256])
+torch.Size([256])
+torch.Size([256, 256])
+torch.Size([256])
+torch.Size([256])
+torch.Size([256])
+torch.Size([256])
+torch.Size([256])
+torch.Size([256, 256])
+torch.Size([256])
+torch.Size([256])
+torch.Size([1, 300, 256])
+torch.Size([512, 256])
+torch.Size([512])
+torch.Size([8, 256, 512])
+torch.Size([8, 512])
+Total number of rmc_parameters:1525506
+Total number of parameters:1958412
+
+Epoch: 0
+[1,   100] loss: 2.078 accuracy:22.828
+[1,   200] loss: 1.994 accuracy:25.641
+[1,   300] loss: 1.943 accuracy:27.641
+[1,   400] loss: 1.908 accuracy:28.770
+[1,   500] loss: 1.877 accuracy:29.991
+[1,   600] loss: 1.853 accuracy:30.831
+[1,   700] loss: 1.831 accuracy:31.663
+test_accuracy is 41.570 after epochs 0
+Saving..
+
+Epoch: 1
+[2,   100] loss: 1.637 accuracy:39.484
+[2,   200] loss: 1.621 accuracy:39.930
+[2,   300] loss: 1.616 accuracy:40.146
+[2,   400] loss: 1.602 accuracy:40.891
+[2,   500] loss: 1.591 accuracy:41.341
+[2,   600] loss: 1.580 accuracy:41.849
+[2,   700] loss: 1.572 accuracy:42.234
+test_accuracy is 45.840 after epochs 1
+Saving..
+
+Epoch: 2
+[3,   100] loss: 1.508 accuracy:44.672
+[3,   200] loss: 1.490 accuracy:45.305
+[3,   300] loss: 1.482 accuracy:45.589
+[3,   400] loss: 1.474 accuracy:46.000
+[3,   500] loss: 1.464 accuracy:46.175
+[3,   600] loss: 1.463 accuracy:46.331
+[3,   700] loss: 1.454 accuracy:46.708
+test_accuracy is 49.700 after epochs 2
+Saving..
+
+Epoch: 3
+[4,   100] loss: 1.416 accuracy:48.109
+[4,   200] loss: 1.400 accuracy:48.656
+[4,   300] loss: 1.395 accuracy:49.292
+[4,   400] loss: 1.393 accuracy:49.379
+[4,   500] loss: 1.392 accuracy:49.400
+[4,   600] loss: 1.390 accuracy:49.448
+[4,   700] loss: 1.386 accuracy:49.480
+test_accuracy is 51.400 after epochs 3
+Saving..
+
+Epoch: 4
+[5,   100] loss: 1.370 accuracy:49.859
+[5,   200] loss: 1.350 accuracy:50.883
+[5,   300] loss: 1.340 accuracy:51.255
+[5,   400] loss: 1.333 accuracy:51.684
+[5,   500] loss: 1.332 accuracy:51.778
+[5,   600] loss: 1.332 accuracy:51.836
+[5,   700] loss: 1.331 accuracy:51.893
+test_accuracy is 53.420 after epochs 4
+Saving..
+
+Epoch: 5
+[6,   100] loss: 1.283 accuracy:53.359
+[6,   200] loss: 1.297 accuracy:52.883
+[6,   300] loss: 1.301 accuracy:52.964
+[6,   400] loss: 1.294 accuracy:53.164
+[6,   500] loss: 1.294 accuracy:53.125
+[6,   600] loss: 1.293 accuracy:53.133
+[6,   700] loss: 1.290 accuracy:53.167
+test_accuracy is 54.080 after epochs 5
+Saving..
+
+Epoch: 6
+[7,   100] loss: 1.272 accuracy:54.047
+[7,   200] loss: 1.261 accuracy:54.805
+[7,   300] loss: 1.273 accuracy:54.484
+[7,   400] loss: 1.266 accuracy:54.633
+[7,   500] loss: 1.261 accuracy:54.737
+[7,   600] loss: 1.262 accuracy:54.596
+[7,   700] loss: 1.264 accuracy:54.565
+test_accuracy is 55.350 after epochs 6
+Saving..
+
+Epoch: 7
+[8,   100] loss: 1.240 accuracy:55.234
+[8,   200] loss: 1.237 accuracy:54.930
+[8,   300] loss: 1.238 accuracy:54.766
+[8,   400] loss: 1.235 accuracy:54.871
+[8,   500] loss: 1.239 accuracy:54.819
+[8,   600] loss: 1.236 accuracy:54.966
+[8,   700] loss: 1.234 accuracy:55.118
+test_accuracy is 56.930 after epochs 7
+Saving..
+
+Epoch: 8
+[9,   100] loss: 1.190 accuracy:56.547
+[9,   200] loss: 1.189 accuracy:57.031
+[9,   300] loss: 1.186 accuracy:57.271
+[9,   400] loss: 1.186 accuracy:57.191
+[9,   500] loss: 1.190 accuracy:57.041
+[9,   600] loss: 1.195 accuracy:56.891
+[9,   700] loss: 1.192 accuracy:56.929
+test_accuracy is 57.950 after epochs 8
+Saving..
+
+Epoch: 9
+[10,   100] loss: 1.165 accuracy:58.156
+[10,   200] loss: 1.170 accuracy:57.820
+[10,   300] loss: 1.171 accuracy:57.568
+[10,   400] loss: 1.171 accuracy:57.594
+[10,   500] loss: 1.173 accuracy:57.619
+[10,   600] loss: 1.172 accuracy:57.628
+[10,   700] loss: 1.172 accuracy:57.699
+test_accuracy is 58.000 after epochs 9
+Saving..
+
+Epoch: 10
+[11,   100] loss: 1.142 accuracy:58.734
+[11,   200] loss: 1.144 accuracy:58.953
+[11,   300] loss: 1.144 accuracy:58.839
+[11,   400] loss: 1.146 accuracy:58.574
+[11,   500] loss: 1.144 accuracy:58.553
+[11,   600] loss: 1.145 accuracy:58.505
+[11,   700] loss: 1.142 accuracy:58.545
+test_accuracy is 59.420 after epochs 10
+Saving..
+
+Epoch: 11
+[12,   100] loss: 1.125 accuracy:59.422
+[12,   200] loss: 1.121 accuracy:59.414
+[12,   300] loss: 1.123 accuracy:59.469
+[12,   400] loss: 1.115 accuracy:59.883
+[12,   500] loss: 1.120 accuracy:59.750
+[12,   600] loss: 1.120 accuracy:59.729
+[12,   700] loss: 1.120 accuracy:59.734
+test_accuracy is 59.670 after epochs 11
+Saving..
+
+Epoch: 12
+[13,   100] loss: 1.120 accuracy:59.344
+[13,   200] loss: 1.102 accuracy:60.109
+[13,   300] loss: 1.105 accuracy:60.161
+[13,   400] loss: 1.104 accuracy:60.289
+[13,   500] loss: 1.103 accuracy:60.234
+[13,   600] loss: 1.099 accuracy:60.477
+[13,   700] loss: 1.097 accuracy:60.522
+test_accuracy is 61.040 after epochs 12
+Saving..
+
+Epoch: 13
+[14,   100] loss: 1.068 accuracy:61.094
+[14,   200] loss: 1.067 accuracy:61.219
+[14,   300] loss: 1.071 accuracy:60.969
+[14,   400] loss: 1.069 accuracy:61.137
+[14,   500] loss: 1.077 accuracy:61.050
+[14,   600] loss: 1.074 accuracy:61.190
+[14,   700] loss: 1.076 accuracy:61.165
+test_accuracy is 61.460 after epochs 13
+Saving..
+
+Epoch: 14
+[15,   100] loss: 1.042 accuracy:62.969
+[15,   200] loss: 1.045 accuracy:62.797
+[15,   300] loss: 1.046 accuracy:62.677
+[15,   400] loss: 1.051 accuracy:62.273
+[15,   500] loss: 1.055 accuracy:62.006
+[15,   600] loss: 1.050 accuracy:62.240
+[15,   700] loss: 1.051 accuracy:62.237
+test_accuracy is 63.010 after epochs 14
+Saving..
+
+Epoch: 15
+[16,   100] loss: 1.028 accuracy:63.062
+[16,   200] loss: 1.040 accuracy:62.273
+[16,   300] loss: 1.043 accuracy:62.370
+[16,   400] loss: 1.038 accuracy:62.539
+[16,   500] loss: 1.037 accuracy:62.506
+[16,   600] loss: 1.037 accuracy:62.589
+[16,   700] loss: 1.035 accuracy:62.750
+test_accuracy is 62.770 after epochs 15
+
+Epoch: 16
+[17,   100] loss: 1.043 accuracy:62.547
+[17,   200] loss: 1.030 accuracy:62.953
+[17,   300] loss: 1.031 accuracy:63.203
+[17,   400] loss: 1.022 accuracy:63.352
+[17,   500] loss: 1.024 accuracy:63.381
+[17,   600] loss: 1.019 accuracy:63.495
+[17,   700] loss: 1.019 accuracy:63.520
+test_accuracy is 63.840 after epochs 16
+Saving..
+
+Epoch: 17
+[18,   100] loss: 1.002 accuracy:64.141
+[18,   200] loss: 0.999 accuracy:63.953
+[18,   300] loss: 1.001 accuracy:63.958
+[18,   400] loss: 1.005 accuracy:63.934
+[18,   500] loss: 0.999 accuracy:64.178
+[18,   600] loss: 1.001 accuracy:64.109
+[18,   700] loss: 1.000 accuracy:64.228
+test_accuracy is 64.040 after epochs 17
+Saving..
+
+Epoch: 18
+[19,   100] loss: 0.981 accuracy:64.906
+[19,   200] loss: 0.985 accuracy:64.609
+[19,   300] loss: 0.984 accuracy:64.755
+[19,   400] loss: 0.984 accuracy:64.625
+[19,   500] loss: 0.982 accuracy:64.800
+[19,   600] loss: 0.983 accuracy:64.654
+[19,   700] loss: 0.982 accuracy:64.685
+test_accuracy is 64.840 after epochs 18
+Saving..
+
+Epoch: 19
+[20,   100] loss: 0.967 accuracy:65.547
+[20,   200] loss: 0.963 accuracy:65.750
+[20,   300] loss: 0.958 accuracy:65.526
+[20,   400] loss: 0.962 accuracy:65.281
+[20,   500] loss: 0.966 accuracy:65.213
+[20,   600] loss: 0.965 accuracy:65.323
+[20,   700] loss: 0.967 accuracy:65.288
+test_accuracy is 64.280 after epochs 19
+
+Epoch: 20
+[21,   100] loss: 0.942 accuracy:66.172
+[21,   200] loss: 0.943 accuracy:66.016
+[21,   300] loss: 0.945 accuracy:66.026
+[21,   400] loss: 0.953 accuracy:65.848
+[21,   500] loss: 0.954 accuracy:65.612
+[21,   600] loss: 0.952 accuracy:65.776
+[21,   700] loss: 0.951 accuracy:65.743
