@@ -1,0 +1,43 @@
+000 (9125642.002.000) 02/11 00:03:25 Job submitted from host: <10.15.2.1:9618?PrivAddr=%3c172.22.0.101:9618%3fsock%3d2293896_6fb7_6%3e&PrivNet=internal.cluster.is.localnet&addrs=10.15.2.1-9618&noUDP&sock=2293896_6fb7_6>
+...
+001 (9125642.002.000) 02/11 01:46:53 Job executing on host: <172.22.2.32:9618?addrs=172.22.2.32-9618&noUDP&sock=30347_18a8_3>
+...
+006 (9125642.002.000) 02/11 01:47:02 Image size of job updated: 32412
+	20  -  MemoryUsage of job (MB)
+	19740  -  ResidentSetSize of job (KB)
+...
+006 (9125642.002.000) 02/11 01:52:02 Image size of job updated: 2113672
+	2030  -  MemoryUsage of job (MB)
+	2078692  -  ResidentSetSize of job (KB)
+...
+006 (9125642.002.000) 02/11 02:17:03 Image size of job updated: 2113672
+	2031  -  MemoryUsage of job (MB)
+	2078988  -  ResidentSetSize of job (KB)
+...
+006 (9125642.002.000) 02/11 02:22:03 Image size of job updated: 2113672
+	2031  -  MemoryUsage of job (MB)
+	2079360  -  ResidentSetSize of job (KB)
+...
+006 (9125642.002.000) 02/11 02:37:05 Image size of job updated: 2113672
+	2031  -  MemoryUsage of job (MB)
+	2079396  -  ResidentSetSize of job (KB)
+...
+006 (9125642.002.000) 02/11 02:57:07 Image size of job updated: 2113672
+	2031  -  MemoryUsage of job (MB)
+	2079460  -  ResidentSetSize of job (KB)
+...
+004 (9125642.002.000) 02/11 05:51:06 Job was evicted.
+	(0) Job was not checkpointed.
+		Usr 0 03:58:20, Sys 0 00:04:20  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :     1.00        1         1 
+	   Disk (KB)            :     2           2    853458 
+	   Gpus                 :                 1         1 "CUDA3"
+	   Memory (MB)          :  2031       48000     48000 
+...
+009 (9125642.002.000) 02/11 05:51:07 Job was aborted by the user.
+	via condor_rm (by user sbauer)
+...

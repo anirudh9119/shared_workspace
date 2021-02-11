@@ -1,0 +1,48 @@
+000 (9125642.005.000) 02/11 00:03:25 Job submitted from host: <10.15.2.1:9618?PrivAddr=%3c172.22.0.101:9618%3fsock%3d2293896_6fb7_6%3e&PrivNet=internal.cluster.is.localnet&addrs=10.15.2.1-9618&noUDP&sock=2293896_6fb7_6>
+...
+001 (9125642.005.000) 02/11 01:46:53 Job executing on host: <172.22.2.91:9618?addrs=172.22.2.91-9618&noUDP&sock=22907_e00a_3>
+...
+006 (9125642.005.000) 02/11 01:47:02 Image size of job updated: 32932
+	20  -  MemoryUsage of job (MB)
+	19732  -  ResidentSetSize of job (KB)
+...
+006 (9125642.005.000) 02/11 01:52:03 Image size of job updated: 2102312
+	2029  -  MemoryUsage of job (MB)
+	2077628  -  ResidentSetSize of job (KB)
+...
+006 (9125642.005.000) 02/11 01:57:03 Image size of job updated: 2104128
+	2030  -  MemoryUsage of job (MB)
+	2077728  -  ResidentSetSize of job (KB)
+...
+006 (9125642.005.000) 02/11 02:02:03 Image size of job updated: 2105140
+	2030  -  MemoryUsage of job (MB)
+	2077728  -  ResidentSetSize of job (KB)
+...
+006 (9125642.005.000) 02/11 02:12:05 Image size of job updated: 2106128
+	2030  -  MemoryUsage of job (MB)
+	2078012  -  ResidentSetSize of job (KB)
+...
+006 (9125642.005.000) 02/11 03:02:09 Image size of job updated: 2106184
+	2030  -  MemoryUsage of job (MB)
+	2078012  -  ResidentSetSize of job (KB)
+...
+006 (9125642.005.000) 02/11 03:17:10 Image size of job updated: 2106892
+	2030  -  MemoryUsage of job (MB)
+	2078012  -  ResidentSetSize of job (KB)
+...
+005 (9125642.005.000) 02/11 05:09:56 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 03:15:08, Sys 0 00:06:01  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 03:15:08, Sys 0 00:06:01  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :     1.12        1         1 
+	   Disk (KB)            :     2           2    853458 
+	   Gpus                 :                 1         1 "CUDA2"
+	   Memory (MB)          :  2030       48000     48000 
+...

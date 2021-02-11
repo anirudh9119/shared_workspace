@@ -1,0 +1,2 @@
+/home/sbauer/anirudh/anaconda3/envs/eaitorch1/lib/python3.7/site-packages/torch/nn/functional.py:1625: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")

@@ -1,0 +1,105 @@
+executable = run.sh
+arguments = default Triangle 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 20 True 1 16 
+error = selfatt_ky32_swap_mlp0_unit_rmc_baseline_16slots.$(Process).error
+output = selfatt_ky32_swap_mlp0_unit_rmc_baseline_16slots.$(Process).out
+log = selfatt_ky32_swap__mlp0_unit_rmc_basline_16slots.$(Process).log
+request_memory = 48000
+request_cpus = 1
+request_gpus = 1
+requirements = TARGET.CUDAGlobalMemoryMb >= 16000
+queue
+
+#sh run.sh default Triangle 0 4 0.1 100 4 4 8 0.0001 h_dim ffn_dim 2 2 True 6 True use_topk topk True num_slots False 3
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 20 True 2 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 20 True 3 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 10 True 1 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 10 True 2 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 10 True 3 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 30 True 1 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 30 True 2 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 30 True 3 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True False 10 True 1 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True False 10 True 2 16
+queue
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True False 10 True 3 16
+queue
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 5 False 1 16
+#queue 
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 5 False 2 16
+#queue 
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 5 False 3 16
+#queue 
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 10 False 1 16
+#queue 
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 10 False 2 16
+#queue 
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True True 10 False 3 16
+#queue 
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True False 10 False 1 16
+queue 
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True False 10 False 2 16
+queue 
+
+arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 True False 10 False 3 16
+queue 
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 False False 10 False 1 16
+#queue 
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 False False 10 False 2 16
+#queue 
+
+#arguments = default cifar10 0 4 0.1 200 4 4 64 0.0001 128 128 2 2 True 6 False False 10 False 3 16
+#queue 
+
+
+#model=$1
+#data=$2
+#version=$3
+#num_layers=$4
+#num_templates=1
+#dropout=$5
+#epochs=$6
+#patch_size=$7
+#num_heads=$8
+#batch_size=$9
+#lr=${10}
+#h_dim=${11}
+#ffn_dim=${12}
+#num_gru_schemas=${13}
+#num_attention_schemas=${14}
+#schema_specific=${15}
+#num_eval_layers=${16}
+#share_vanilla_parameters=${17}
+#use_topk=${18}
+#topk=${19}
+#shared_memory_attention=${20}
+#seed=${21}

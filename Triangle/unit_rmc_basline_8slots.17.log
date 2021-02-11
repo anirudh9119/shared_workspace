@@ -1,0 +1,32 @@
+000 (9126475.017.000) 02/11 02:35:28 Job submitted from host: <10.15.2.1:9618?PrivAddr=%3c172.22.0.101:9618%3fsock%3d2293896_6fb7_6%3e&PrivNet=internal.cluster.is.localnet&addrs=10.15.2.1-9618&noUDP&sock=2293896_6fb7_6>
+...
+001 (9126475.017.000) 02/11 02:39:17 Job executing on host: <172.22.2.82:9618?addrs=172.22.2.82-9618&noUDP&sock=22393_505c_3>
+...
+006 (9126475.017.000) 02/11 02:39:26 Image size of job updated: 131420
+	69  -  MemoryUsage of job (MB)
+	70436  -  ResidentSetSize of job (KB)
+...
+006 (9126475.017.000) 02/11 02:44:26 Image size of job updated: 2343436
+	2021  -  MemoryUsage of job (MB)
+	2069272  -  ResidentSetSize of job (KB)
+...
+006 (9126475.017.000) 02/11 05:37:46 Image size of job updated: 12761596
+	2021  -  MemoryUsage of job (MB)
+	2069272  -  ResidentSetSize of job (KB)
+...
+005 (9126475.017.000) 02/11 05:37:46 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 02:52:07, Sys 0 00:05:29  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 02:52:07, Sys 0 00:05:29  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :     1.00        1         1 
+	   Disk (KB)            :     2           2    853458 
+	   Gpus                 :                 1         1 "CUDA7"
+	   Memory (MB)          :  2021       48000     48000 
+...
