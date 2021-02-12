@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from .pos_enc import PositionEncoder
-from utilities.GroupLinearLayer import GroupLinearLayer
+from .GroupLinearLayer import GroupLinearLayer
 # this class largely follows the official sonnet implementation
 # https://github.com/deepmind/sonnet/blob/master/sonnet/python/modules/relational_memory.py
 class RepeatLinear(nn.Module):
@@ -448,7 +448,7 @@ class RelationalMemory(nn.Module):
             self.attn_log[:, :, 1] = input_gate[0].cpu()
 
 
-        output = next_memory.view(next_memory.shape[0], -1)
+        output = next_memory.reshape(next_memory.shape[0], -1)
         hx = self.multihead_attention(next_memory, inputs_reshape, use_topk_ = False, store_log = False)
         return output, next_memory, hx
 
