@@ -1,6 +1,9 @@
 # SW_ICML
 
-
+## Install relevant libraries
+```
+pip install -r requirements.txt 
+```
 ## Detecting Equilateral Triangles 
 Folder: Triangle/
 
@@ -39,6 +42,8 @@ sh run.sh 4 256 512 False False 20 False 1 8
 ```
 
 ## Sort-of-CLEVR
+The following commands to be executed from inside in the `sort_of_clevr` folder.
+
 
 ```
 sh run_transformer.sh h_dim num_layers share_vanilla_parameters use_topk topk shared_memory_attention mem_slots seed
