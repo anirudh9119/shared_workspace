@@ -1,34 +1,34 @@
 #!/bin/bash
 
-source ~/anirudh/anaconda3/etc/profile.d/conda.sh
-conda activate eaitorch1
+#run.sh default Triangle 0 4 0.1 100 4 4 8 0.0001 64 128 2 2 True 6 True False 10 False 4 False 3
 
-#./run.sh default Triangle 0 4 0.1 200 4 1 64 0.0001 128 128 2 2 True 6 True True 20 True 16 1
-
-model=$1
+model=default
 data='Triangle'
-version=$3
-num_layers=$4
+version=0
+num_layers=$1
 num_templates=1
-dropout=$5
-epochs=$6
-patch_size=$7
-num_heads=$8
-batch_size=$9
-lr=${10}
-h_dim=${11}
-ffn_dim=${12}
-num_gru_schemas=${13}
-num_attention_schemas=${14}
-schema_specific=${15}
-num_eval_layers=${16}
-share_vanilla_parameters=${17}
-use_topk=${18}
-topk=${19}
-shared_memory_attention=${20}
+dropout=0.1
+epochs=100
+patch_size=4
+num_heads=4
+batch_size=64
+lr=0.0001
+h_dim=$2
+ffn_dim=$3
+num_gru_schemas=2
+num_attention_schemas=2
+schema_specific=True
+num_eval_layers=6
+share_vanilla_parameters=${4}
+use_topk=${5}
+topk=${6}
+shared_memory_attention=${7}
 null_attention=False 
-seed=${21}
-mem_slots=${22}
+seed=${8}
+mem_slots=${9}
+
+
+
 
 name="HXLN_LN_LSTM-"$model"-data-"$data"-version-"$version"-num_layers-"$num_layers"-num_templates-"$num_layers"-dropout-"$dropout"-epochs-"$epochs"-patch_size-"$patch_size"-num_heads-"$num_heads"-batch_size-"$batch_size"-lr-"$lr-$h_dim-$ffn_dim-$num_gru_schemas-$num_attention_schemas-$schema_specific-$num_eval_layers-$share_vanilla_parameters-$use_topk-$topk-$shared_memory_attention-$mem_slots-$null_attention-$seed
 
