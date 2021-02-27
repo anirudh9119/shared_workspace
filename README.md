@@ -1,4 +1,7 @@
-# SW_ICML
+# Synchronizing Neural Modules Through a Shared Workspace
+
+This repository contains the code to reproduce the `relational reasoning: sort_of_clever` and `detecting equilateral triangles` tasks from our paper.  
+
 
 ## Install relevant libraries
 ```
