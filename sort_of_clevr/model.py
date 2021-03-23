@@ -6,6 +6,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 from transformers import TransformerEncoder
 from einops import rearrange, repeat
+from transformer_utilities.set_transformer import SetTransformer
 
 
 class ConvInputModel(nn.Module):
@@ -256,21 +257,8 @@ class Transformer(BasicModel):
         patch_dim = channels * patch_size ** 2
         #assert num_patches > MIN_NUM_PATCHES, f'your number of patches ({num_patches}) is way too small for attention to be effective (at least 16). Try decreasing your patch size'
         if args.functional:
-            self.net = TransformerEncoder(
-                            h_dim,
-                            512,
-                            num_layers = args.num_layers,
-                            num_heads = 4,
-                            dropout = 0.1,
-                            functional = True,
-                            num_gru_schemas = 1,
-                            num_attention_schemas = 1,
-                            schema_specific = True,
-                            use_topk = args.use_topk,
-                            topk = args.topk,
-                            shared_memory_attention = args.shared_memory_attention,
-                            mem_slots = 8,
-                            num_steps = int((image_size*image_size) / (patch_size * patch_size) + 1 + 18))
+            print('USING SET TRANSFORMER')
+            self.net = SetTransformer(h_dim, dim_hidden = 512, num_inds = args.mem_slots)
         else:
             self.net = TransformerEncoder(
                             h_dim,
