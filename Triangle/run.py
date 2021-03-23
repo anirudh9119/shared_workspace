@@ -183,22 +183,7 @@ start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
 
 if args.model == "functional":
-    transformer = TransformerEncoder(
-                            args.h_dim,
-                            args.ffn_dim,
-                            num_layers = args.num_layers,
-                            num_heads = args.num_heads,
-                            dropout = args.dropout,
-                            functional = True,
-                            num_gru_schemas = args.num_gru_schemas,
-                            num_attention_schemas = args.num_attention_schemas,
-                            schema_specific = args.schema_specific,
-                            use_topk = args.use_topk,
-                            topk = args.topk,
-                            shared_memory_attention = args.shared_memory_attention,
-                            mem_slots = 8,
-                            num_steps = int((image_size*image_size) / (args.patch_size * args.patch_size) + 1))
-
+    transformer = SetTransformer(args.h_dim, dim_hidden = args.h_dim, num_inds = args.mem_slots)
     #net = FunctionalVisionTransformer(
     #    image_size = image_size,
     #    patch_size = args.patch_size,
