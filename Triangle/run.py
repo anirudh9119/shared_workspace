@@ -55,6 +55,7 @@ parser.add_argument('--topk', type = int, default = 3)
 parser.add_argument('--shared_memory_attention', type = str2bool, default = False)
 parser.add_argument('--mem_slots', type = int, default = 4)
 parser.add_argument('--null_attention', type = str2bool, default = False)
+parser.add_argument('--selective', type = str2bool, default = False)
 parser.add_argument('--seed', type = int, default = 0)
 args = parser.parse_args()
 
@@ -213,7 +214,8 @@ elif args.model == "default":
                             topk = args.topk,
                             mem_slots = args.mem_slots,
                             null_attention = args.null_attention,
-                            num_steps = int((image_size*image_size) / (args.patch_size * args.patch_size) + 1) )
+                            num_steps = int((image_size*image_size) / (args.patch_size * args.patch_size) + 1) ,
+                            selective=args.selective)
     #net = ViT(
     #    image_size = image_size,
     #    patch_size = args.patch_size,

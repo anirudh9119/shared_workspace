@@ -1,0 +1,78 @@
+[=== Module anaconda/3 loaded ===]
+True-HXLN_LN_LSTM-default-data-Triangle-version-0-num_layers-4-num_templates-4-dropout-0.1-epochs-100-patch_size-4-num_heads-4-batch_size-64-lr-0.0001-256-512-2-2-True-6-True-False-8-False-1-False-772
+transformer embed_dim 256
+functional? False
+total heads 4
+head dim 64
+use topk?False
+topk:8
+Total number of parameters:818184
+
+Epoch: 0
+/home/mila/k/kartikeya.badola/.conda/envs/gwt/lib/python3.7/site-packages/torch/nn/functional.py:1639: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")
+Traceback (most recent call last):
+  File "run.py", line 422, in <module>
+    train(epoch)
+  File "run.py", line 351, in train
+    outputs = net(inputs)
+  File "/home/mila/k/kartikeya.badola/.conda/envs/gwt/lib/python3.7/site-packages/torch/nn/modules/module.py", line 727, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "run.py", line 266, in forward
+    x = self.net(x)
+  File "/home/mila/k/kartikeya.badola/.conda/envs/gwt/lib/python3.7/site-packages/torch/nn/modules/module.py", line 727, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/home/mila/k/kartikeya.badola/new_project/SW_ICML/Triangle/transformers.py", line 173, in forward
+    x, memory = self.enc(x, mask, memory = memory)
+  File "/home/mila/k/kartikeya.badola/.conda/envs/gwt/lib/python3.7/site-packages/torch/nn/modules/module.py", line 727, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/home/mila/k/kartikeya.badola/new_project/SW_ICML/Triangle/transformer_utilities/transformer_layer.py", line 136, in forward
+    memory = memory
+  File "/home/mila/k/kartikeya.badola/.conda/envs/gwt/lib/python3.7/site-packages/torch/nn/modules/module.py", line 727, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/home/mila/k/kartikeya.badola/new_project/SW_ICML/Triangle/transformer_utilities/multihead_attention.py", line 413, in forward
+    q = self.q_proj(query)
+  File "/home/mila/k/kartikeya.badola/.conda/envs/gwt/lib/python3.7/site-packages/torch/nn/modules/module.py", line 779, in __getattr__
+    type(self).__name__, name))
+torch.nn.modules.module.ModuleAttributeError: 'MultiheadAttention' object has no attribute 'q_proj'
+
+======== GPU REPORT ========
+
+==============NVSMI LOG==============
+
+Timestamp                                 : Mon Mar 29 15:31:31 2021
+Driver Version                            : 450.66
+CUDA Version                              : 11.0
+
+Attached GPUs                             : 1
+GPU 00000000:17:00.0
+    Accounting Mode                       : Enabled
+    Accounting Mode Buffer Size           : 4000
+    Accounted Processes
+        Process ID                        : 16852
+            GPU Utilization               : 0 %
+            Memory Utilization            : 0 %
+            Max memory usage              : 1227 MiB
+            Time                          : 69830 ms
+            Is Running                    : 0
+
+Mon Mar 29 15:31:31 2021       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 450.66       Driver Version: 450.66       CUDA Version: 11.0     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  TITAN RTX           Off  | 00000000:17:00.0 Off |                  N/A |
+| 41%   43C    P5    54W / 280W |      0MiB / 24220MiB |      3%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+

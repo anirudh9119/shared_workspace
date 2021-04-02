@@ -1,4 +1,3 @@
-
 # Copyright (c) Facebook, Inc. and its affiliates.
 #
 # This source code is licensed under the MIT license found in the
@@ -27,9 +26,28 @@ from .relational_memory_volatile import RelationalMemory
 from .relational_memory_regressive import RelationalMemory as RelationalMemoryRegressive
 #from fairseq.modules.shared_group_linear_layer import SharedGroupLinearLayer as GroupLinearLayer
 
+class SelectAttention(nn.Module):
+    """docstring for SelectAttention"""
+    def __init__(self, d_read, d_write, d_k = 16):
+        super(SelectAttention, self).__init__()
+        self.gll_write = nn.Linear(d_write, d_k)
+
+        self.gll_read = nn.Linear(d_read, d_k)
+
+        self.temperature = math.sqrt(d_k)
+
+    def forward(self, q, k):
+        read = self.gll_read(q)
+        write = self.gll_write(k)
+
+        return torch.bmm(read, write.permute(0, 2, 1)) / self.temperature
+
+
+# head embedding dimension  = (1,n_h,h_emb)
+# (1,n_h,d_k) and (tgt,bsz,d_k)
+# (1,d_k,n_h)
 class MultiheadAttention(nn.Module):
     """Multi-headed attention.
-
     See "Attention Is All You Need" for more details.
     """
 
@@ -56,13 +74,16 @@ class MultiheadAttention(nn.Module):
         num_steps = 5,
         mem_slots = 4,
         null_attention = False,
-        regressive = False
+        regressive = False,
+        selective = False,
+        head_embed_dim=64
     ):
         super().__init__()
         self.embed_dim = embed_dim
         self.kdim = kdim if kdim is not None else embed_dim
         self.vdim = vdim if vdim is not None else embed_dim
         self.qkv_same_dim = self.kdim == embed_dim and self.vdim == embed_dim
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
         self.num_heads = num_heads
         self.dropout_module = FairseqDropout(
@@ -71,6 +92,8 @@ class MultiheadAttention(nn.Module):
 
         self.head_dim = embed_dim // num_heads
         self.shared_memory_attention = shared_memory_attention
+        self.head_embed_dim = head_embed_dim
+        self.selective = selective
 
         print('total heads', self.num_heads)
         print('head dim', self.head_dim)
@@ -92,7 +115,20 @@ class MultiheadAttention(nn.Module):
         assert not self.self_attention or self.qkv_same_dim, (
             "Self-attention requires query, key and " "value to be of the same size"
         )
-        if not self.shared_memory_attention:
+        if self.selective:
+            print('USING SELECTIVE ATTENTION')
+            self.q_proj_selective = nn.Linear(self.embed_dim,self.embed_dim*self.num_heads)
+            w =  torch.randn(1, self.num_heads, self.head_embed_dim).to(self.device)
+            self.head_embeddings = nn.Parameter(w)
+            self.variable_head_select = SelectAttention( self.embed_dim ,self.head_embed_dim, d_k=32)
+            self.kv_selective = nn.Linear(self.embed_dim,self.num_heads*self.embed_dim*2)
+
+
+
+            ''' we want something like this:
+            query_weights = self.q_proj.weight.reshape(self.embed_dim,self.embed_dim//self.num_heads,self.num_heads).permute()'''
+            
+        if not self.selective and not self.shared_memory_attention:
             self.k_proj = quant_noise(GroupLinearLayer(self.kdim//nblocks, embed_dim//nblocks, nblocks, bias=bias), q_noise, qn_block_size)
             self.v_proj = quant_noise(GroupLinearLayer(self.vdim//nblocks, embed_dim//nblocks, nblocks, bias=bias), q_noise, qn_block_size)
             self.q_proj = quant_noise(GroupLinearLayer(embed_dim//nblocks, embed_dim//nblocks, nblocks, bias=bias), q_noise, qn_block_size)
@@ -115,7 +151,7 @@ class MultiheadAttention(nn.Module):
         self.onnx_trace = False
         self.tpu = False
 
-        if self.shared_memory_attention:
+        if not self.selective and self.shared_memory_attention:
             print('MEM SLOTS:' + str(mem_slots))
             print('Null attention:' + str(null_attention))
             print('USING SHARED MEMORY ATTENTION +++++++++')
@@ -182,7 +218,7 @@ class MultiheadAttention(nn.Module):
         self.tpu = True
 
     def reset_parameters(self):
-        if self.qkv_same_dim:
+        if self.qkv_same_dim or True: #=====================================CHANGED TO ALWAYS TRUE FOR NOW=======================================================
             # Empirically observed the convergence to be much better with
             # the scaled initialization
             nn.init.xavier_uniform_(self.k_proj.weight, gain=1 / math.sqrt(2))
@@ -192,7 +228,9 @@ class MultiheadAttention(nn.Module):
                 nn.init.xavier_uniform_(self.k_proj_memory.weight, gain=1 / math.sqrt(2))
                 nn.init.xavier_uniform_(self.v_proj_memory.weight, gain=1 / math.sqrt(2))
                 nn.init.xavier_uniform_(self.q_proj_memory.weight, gain=1 / math.sqrt(2))
-
+            if self.selective:
+                nn.init.xavier_uniform_(self.kv_selective.weight, gain=1 / math.sqrt(2))
+                nn.init.xavier_uniform_(self.q_proj_selective.weight, gain=1 / math.sqrt(2))
         else:
             nn.init.xavier_uniform_(self.k_proj.weight)
             nn.init.xavier_uniform_(self.v_proj.weight)
@@ -241,7 +279,6 @@ class MultiheadAttention(nn.Module):
         memory = None
     ) -> Tuple[Tensor, Optional[Tensor]]:
         """Input shape: Time x Batch x Channel
-
         Args:
             key_padding_mask (ByteTensor, optional): mask to exclude
                 keys that are pads, of shape `(batch, src_len)`, where
@@ -266,17 +303,143 @@ class MultiheadAttention(nn.Module):
         assert list(query.size()) == [tgt_len, bsz, embed_dim]
 
         if (
-            not self.onnx_trace
-            and not self.tpu  # don't use PyTorch version on TPUs
-            and incremental_state is None
-            and not static_kv
-            # A workaround for quantization to work. Otherwise JIT compilation
-            # treats bias in linear module as method.
-            and not torch.jit.is_scripting()
-            and False
+            True
+            # not self.onnx_trace
+            # and not self.tpu  # don't use PyTorch version on TPUs
+            # and incremental_state is None
+            # and not static_kv
+            # # A workaround for quantization to work. Otherwise JIT compilation
+            # # treats bias in linear module as method.
+            # and not torch.jit.is_scripting()
+            # and False
         ):
             assert key is not None and value is not None
-            if self.shared_memory_attention:
+            if self.selective:
+                pre_scores = self.variable_head_select(query.permute(1,0,2),self.head_embeddings.repeat(bsz,1,1))
+                selected_indices = F.gumbel_softmax(pre_scores, dim = 2, hard = True).permute(1,0,2)
+                #selected_indices become tgt_len,bsz,num_heads
+                '''self.k_proj_selective = nn.Linear(self.embed_dim,self.embed_dim)
+            self.v_proj_selective = nn.Linear(self.embed_dim,self.embed_dim)
+            self.q_proj_selective = nn.Linear(self.embed_dim,self.embed_dim)'''
+                # kv_weight = self.kv_selective.weight.reshape(self.embed_dim,2*self.embed_dim//self.num_heads,self.num_heads).permute(2,1,0)
+                # kv_bias = self.kv_bias.bias.reshape(self.num_heads,2*self.embed_dim//self.num_heads)
+
+                # selected_qkv_weight = torch.matmul(selected_indices.reshape(tgt_len*bsz,num_heads),selected_qkv_weight.reshape(self.num_heads,(self.embed_dim**2)*3//self.num_heads))
+                # selected_qkv_bias = torch.matmul(selected_indices.reshape(tgt_len*bsz,num_heads),selected_qkv_bias.reshape(self.num_heads,self.embed_dim*3//self.num_heads))
+
+                # selected_qkv_weight = selected_qkv_weight.reshape(tgt_len,bsz,self.embed_dim,3*self.embed_dim//self.num_heads)
+                # selected_qkv_bias = selected_qkv_bias.reshape(tgt_len,bsz,3*self.embed_dim//self.num_heads)
+
+                # q_proj,k_proj,v_proj = selected_qkv_weight.chunk(dim=3)
+                # q_bias,k_bias,v_bias = selected_qkv_bias.chunk(dim=2)
+                '''
+                query_proj_weight  = self.q_proj_selective.weight.reshape(self.embed_dim,self.embed_dim,self.num_heads)
+                query_proj_bias  = self.q_proj_selective.bias.reshape(self.num_heads,self.embed_dim)
+                selected_indices_reshaped = selected_indices.reshape(tgt_len*bsz,self.num_heads)
+               
+
+
+
+                
+
+                selected_q_weights = torch.matmul(selected_indices_reshaped,query_proj_weight.permute(2,0,1).reshape(self.num_heads,self.embed_dim**2))
+                selected_q_weights = selected_q_weights.reshape(tgt_len*bsz,self.embed_dim,self.embed_dim)
+                selected_q_bias = torch.matmul(selected_indices_reshaped,query_proj_bias)
+                # selected_q_weights --> tgt_len*bsz,self.embed_dim,self.embed_dim
+                # selected_q_bias --> tgt_len*bsz,self.embed_dim
+
+
+                # queries = torch.bmm(query.reshape(tgt_len*bsz,self.embed_dim),selected_q_weights) + selected_q_bias
+                queries = torch.matmul(query.reshape(tgt_len * bsz, self.embed_dim).unsqueeze(0), selected_q_weights).squeeze(0) + selected_q_bias
+                queries = queries.reshape(tgt_len,bsz,self.embed_dim)'''
+
+                all_queries = self.q_proj_selective(query)
+                all_queries = all_queries.reshape(tgt_len,bsz,self.num_heads,self.embed_dim)
+                selected_indices_new = selected_indices.unsqueeze(3).repeat(1,1,1,self.embed_dim)
+
+                queries = (all_queries*selected_indices_new).sum(dim=2)
+                    
+                # queries = query
+                queries = queries.permute(1,0,2)
+                # queries--> batch_size, tgt_len, self.embed_dim
+
+                key_value = self.kv_selective(query).reshape(tgt_len,bsz,2*self.embed_dim,self.num_heads)
+                key_value = key_value.permute(1,3,0,2)
+                # key_value--> batch_size, num_heads, tgt_len, 2*self.embed_dim
+
+                '''
+                selected_indices = selected_indices.permute(1,0,2).reshape(bsz,tgt_len,self.num_heads,1,1)
+                selected_indices = selected_indices.repeat(1,1,1,tgt_len,2*self.embed_dim)
+                key_value = key_value.unsqueeze(1).repeat(1,tgt_len,1,1,1)
+
+                selected_key_value = (selected_indices*key_value).sum(dim=2)
+                selected_key_value = selected_key_value.reshape(bsz*tgt_len,tgt_len,2*self.embed_dim)
+                '''
+
+                selected_indices = selected_indices.permute(1,0,2)
+                # selected_indices--> batch_size, tgt_len, num_heads
+                selected_key_value = torch.bmm(selected_indices,key_value.reshape(bsz,self.num_heads,2*tgt_len*self.embed_dim))
+                # selected_key_value--> batch_size, tgt_len, 2*tgt_len*self.embed_dim
+                selected_key_value = selected_key_value.reshape(bsz*tgt_len,tgt_len,2*self.embed_dim)
+                queries = queries.reshape(bsz*tgt_len,self.embed_dim)
+
+
+                scaling_factor = math.sqrt(self.embed_dim)
+                selected_key, selected_value = selected_key_value.chunk(2,dim=2)
+                #queries --> bsz*tgt_len , self.embed_dim
+                #selected_key --> bsz*tgt_len, tgt_len, self.embed_dim
+                #selected_value --> bsz*tgt_len, tgt_len, self.embed_dim
+
+                attention_scores = F.softmax(torch.bmm(selected_key,queries.unsqueeze(2)).squeeze(2)/scaling_factor, dim=1)
+                # bsz*tgt_len, tgt_len
+                attention_scores = attention_scores.reshape(bsz*tgt_len, tgt_len,1)
+                attended_summary = (attention_scores*selected_value).sum(dim=1)
+                attended_summary = attended_summary.reshape(bsz,tgt_len,self.embed_dim)
+                attended_summary = attended_summary.permute(1,0,2)
+                # print(attended_summary)
+                # print(attended_summary.shape)
+
+                out=attended_summary
+                memory = None
+                weights = None
+
+
+
+
+
+
+                
+
+
+
+
+
+                # key_proj_weight = self.k_proj_selective.weight.reshape(self.embed_dim,self.embed_dim//self.num_heads,self.num_heads).permute(2,1,0)
+                # key_proj_bias = self.k_proj_selective.bias.reshape(self.num_heads,self.embed_dim//self.num_heads)
+                # value_proj_weight = self.v_proj_selective.weight.reshape(self.embed_dim,self.embed_dim//self.num_heads,self.num_heads).permute(2,1,0)
+                # value_proj_bias = self.v_proj_selective.bias.reshape(self.num_heads,self.embed_dim//self.num_heads)
+                # query_proj_weight = self.q_proj_selective.weight.reshape(self.embed_dim,self.embed_dim//self.num_heads,self.num_heads).permute(2,1,0)
+                # query_proj_bias = self.q_proj_selective.bias.reshape(self.num_heads,self.embed_dim//self.num_heads)
+
+                # selected_q_weights = torch.matmul(selected_indices.reshape(tgt_len*bsz,self.num_heads),query_proj_weight.reshape(self.num_heads,self.embed_dim**2//self.num_heads))
+                # selected_k_weights = torch.matmul(selected_indices.reshape(tgt_len*bsz,self.num_heads),key_proj_weight.reshape(self.num_heads,self.embed_dim**2//self.num_heads))
+                # selected_v_weights = torch.matmul(selected_indices.reshape(tgt_len*bsz,self.num_heads),value_proj_weight.reshape(self.num_heads,self.embed_dim**2//self.num_heads))
+                # selected_q_bias = torch.matmul(selected_indices.reshape(tgt_len*bsz,self.num_heads),query_proj_bias.reshape(self.num_heads,self.embed_dim**2//self.num_heads))
+                # selected_k_bias = torch.matmul(selected_indices.reshape(tgt_len*bsz,self.num_heads),key_proj_bias.reshape(self.num_heads,self.embed_dim**2//self.num_heads))
+                # selected_v_bias = torch.matmul(selected_indices.reshape(tgt_len*bsz,self.num_heads),value_proj_bias.reshape(self.num_heads,self.embed_dim**2//self.num_heads))
+
+                # selected_q_weights = selected_q_weights.reshape(tgt_len,bsz,self.embed_dim,self.embed_dim//self.num_heads)
+                # selected_k_weights = selected_k_weights.reshape(tgt_len,bsz,self.embed_dim,self.embed_dim//self.num_heads)
+                # selected_v_weights = selected_v_weights.reshape(tgt_len,bsz,self.embed_dim,self.embed_dim//self.num_heads)
+                # selected_q_bias = selected_q_bias.reshape(tgt_len,bsz,self.embed_dim//self.num_heads)
+                # selected_k_bias = selected_k_bias.reshape(tgt_len,bsz,self.embed_dim//self.num_heads)
+                # selected_v_bias = selected_v_bias.reshape(tgt_len,bsz,self.embed_dim//self.num_heads)
+
+
+
+
+                
+            if not self.selective and self.shared_memory_attention:
                 memory,_ = F.multi_head_attention_forward(
                     memory,
                     key,
@@ -323,7 +486,8 @@ class MultiheadAttention(nn.Module):
                     k_proj_weight=self.k_proj_memory.weight,
                     v_proj_weight=self.v_proj_memory.weight,
                     )
-            else:
+            
+            elif not self.selective and not self.shared_memory_attention:
                 out, weights = F.multi_head_attention_forward(
                     query,
                     key,
@@ -361,7 +525,7 @@ class MultiheadAttention(nn.Module):
                     key = value = None
         else:
             saved_state = None
-        if not self.shared_memory_attention:
+        if not self.selective and not self.shared_memory_attention:
 
             t1 = time.time()
 
@@ -560,7 +724,7 @@ class MultiheadAttention(nn.Module):
                     attn_weights = attn_weights.mean(dim=0)
             #print('time taken by default mha:' + str(time.time() - t1))
             return attn, None, attn_weights
-        else:
+        elif not self.selective:
             t1 = time.time()
             if self.memory is None:
                 self.memory = self.relational_memory.initial_state(query.size(1), query.size(0)).to(query.device)
@@ -606,35 +770,28 @@ class MultiheadAttention(nn.Module):
 
             return out_hx_mem_new.transpose(0, 1), memory, None
             """
-
             tgt_len = memory.size(0)
             src_len = key.size(0)
             q_memory = self.q_proj_memory(memory)
             k = self.k_proj(key)
             v = self.v_proj(value)
-
             q_memory = (
                 q_memory.contiguous()
                 .view(memory.size(0), bsz * self.num_heads, self.head_dim)
                 .transpose(0, 1)
             )
-
             k = (
                 k.contiguous()
                 .view(-1, bsz * self.num_heads, self.head_dim)
                 .transpose(0, 1)
             )
-
             v = (
                 v.contiguous()
                 .view(-1, bsz * self.num_heads, self.head_dim)
                 .transpose(0, 1)
             )
-
             
-
             attn_weights_1 = torch.bmm(q_memory, k.transpose(1, 2))
-
             if key_padding_mask is not None:
                 # don't attend to padding symbols
                 attn_weights_1 = attn_weights_1.view(bsz, self.num_heads, tgt_len, src_len)
@@ -642,45 +799,35 @@ class MultiheadAttention(nn.Module):
                         key_padding_mask.unsqueeze(1).unsqueeze(2).to(torch.bool),
                         float("-inf")
                     )
-
             attn_weights_float_1 = utils.softmax(
                 attn_weights_1, dim=-1, onnx_trace=self.onnx_trace
             )
             attn_weights_1 = attn_weights_float_1.type_as(attn_weights_1)
             attn_probs_1 = self.dropout_module(attn_weights_1)
-
             assert v is not None
             memory = torch.bmm(attn_probs_1, v)
-
             memory = memory.permute(1, 0, 2)
             memory = memory.reshape(memory.size(0), bsz, self.num_heads, -1)
             memory = memory.reshape(memory.size(0), bsz, -1)
-
-
-
             q = self.q_proj(query)
             
             k_memory = self.k_proj_memory(memory)
             v_memory = self.v_proj_memory(memory)
-
             q = (
                 q.contiguous()
                 .view(src_len, bsz * self.num_heads, self.head_dim)
                 .transpose(0, 1)
             )
-
             k_memory = (
                 k.contiguous()
                 .view(-1, bsz * self.num_heads, self.head_dim)
                 .transpose(0, 1)
             )
-
             v_memory = (
                 v.contiguous()
                 .view(-1, bsz * self.num_heads, self.head_dim)
                 .transpose(0, 1)
             )
-
             attn_weights_2 = torch.bmm(q, k_memory.transpose(1, 2))
             
             attn_weights_float_2 = utils.softmax(
@@ -689,7 +836,6 @@ class MultiheadAttention(nn.Module):
             
             attn_weights_2 = attn_weights_float_2.type_as(attn_weights_2)
             attn_probs_2 = self.dropout_module(attn_weights_2)
-
             out = torch.bmm(attn_probs_2, v)
             out = out.transpose(0, 1).contiguous().view(src_len, bsz, embed_dim)
             return out, memory, None
@@ -808,4 +954,3 @@ class MultiheadAttention(nn.Module):
 
         for key, value in items_to_add.items():
             state_dict[key] = value
-

@@ -70,7 +70,8 @@ class TransformerEncoder(nn.Module):
                  topk = 3,
                  num_steps = 5,
                  null_attention = False,
-                 regressive = False):
+                 regressive = False,
+                 selective = False):
         super().__init__()
 
         if schema_specific and (num_gru_schemas != num_attention_schemas):
@@ -88,6 +89,7 @@ class TransformerEncoder(nn.Module):
         args.num_steps = num_steps
         args.null_attention = null_attention
         args.regressive = regressive
+        args.selective = selective
 
 
         self.num_layers = num_layers

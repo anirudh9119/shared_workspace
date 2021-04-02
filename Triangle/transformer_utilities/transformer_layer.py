@@ -81,7 +81,8 @@ class TransformerEncoderLayerVanilla(nn.Module):
             num_steps = args.num_steps,
             mem_slots = args.mem_slots,
             null_attention = args.null_attention,
-            regressive = args.regressive
+            regressive = args.regressive,
+            selective = args.selective
         )
 
     def upgrade_state_dict_named(self, state_dict, name):
