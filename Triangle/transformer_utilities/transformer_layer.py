@@ -16,6 +16,10 @@ from .relational_memory import RelationalMemory
 from .group_linear_layer import GroupLinearLayer
 #from fairseq.modules.shared_group_linear_layer import SharedGroupLinearLayer
 
+#from .quantize import Quantize
+
+from .quantize3 import VQVAEQuantize as VQVAEQuantize
+
 from .basic_mha import MemoryAttention
 
 import random
@@ -57,6 +61,11 @@ class TransformerEncoderLayerVanilla(nn.Module):
         self.fc1 = self.build_fc1(self.embed_dim, args.encoder_ffn_embed_dim)
         self.fc2 = self.build_fc2(args.encoder_ffn_embed_dim, self.embed_dim)
         self.final_layer_norm = LayerNorm(self.embed_dim)
+
+        #self.quantize = Quantize(self.embed_dim, 4096, 1)
+        self.quantize = VQVAEQuantize(self.embed_dim, 512, self.embed_dim, 64)
+
+        print('making vanilla transformer encoder layer!')
 
         if out_proj is not None:
             self.final_linear = nn.Linear(args.encoder_embed_dim, out_proj)
@@ -126,15 +135,24 @@ class TransformerEncoderLayerVanilla(nn.Module):
         # TODO: to formally solve this problem, we need to change fairseq's
         # MultiheadAttention. We will do this later on.
         #print(state is not None)
+
         x, memory, _ = self.self_attn(
-            query=state if state is not None else x,
+            query=x,
             key=x,
             value=x,
             key_padding_mask=encoder_padding_mask,
             attn_mask=attn_mask,
             memory = memory
         )
+        #self.extra_loss = self.self_attn.extra_loss
+
+        self.extra_loss = 0.0
+
+        x, diff_loss, quantize_ind = self.quantize(x)
+        self.extra_loss = diff_loss
+
         x = F.dropout(x, p=self.dropout, training=self.training)
+
         x = residual + x
         if not self.normalize_before:
             x = self.self_attn_layer_norm(x)
@@ -146,11 +164,24 @@ class TransformerEncoderLayerVanilla(nn.Module):
         x = F.dropout(x, p=float(self.activation_dropout), training=self.training)
         x = self.fc2(x)
         x = F.dropout(x, p=self.dropout, training=self.training)
+        
+        #x, diff_loss, quantize_ind = self.quantize(x)
+        #self.extra_loss = diff_loss * 0.1
+        #print('x.mean()', x.mean())
+        #print('diff loss', diff_loss)
+
         x = residual + x
         if not self.normalize_before:
             x = self.final_layer_norm(x)
         if self.final_linear is not None:
             x = self.final_linear(x)
+
+        #use quantize
+        #x, diff_loss, quantize_ind = self.quantize(x)
+        #self.extra_loss = diff_loss * 0.1
+        #print('x.mean()', x.mean())
+        #print('diff loss', diff_loss)
+
         return x, memory
 
 class Attention(nn.Module):

@@ -101,7 +101,7 @@ class TransformerEncoder(nn.Module):
             layer_lst = []
             args.use_topk = use_topk
             args.topk = topk
-
+            print('share parameters?', share_parameters)
 
             args.encoder_embed_dim = embed_dim
             self.share_parameters = share_parameters
@@ -147,7 +147,7 @@ class TransformerEncoder(nn.Module):
 
         x = self.pe(x)
 
-
+        self.extra_loss = 0.0
 
         if not self.functional:
             if self.shared_memory_attention:
@@ -169,8 +169,10 @@ class TransformerEncoder(nn.Module):
             for i in range(self.num_layers):
                 if self.share_parameters:
                     x, memory = self.enc(x, mask, memory = memory)
+                    self.extra_loss += self.enc.extra_loss
                 else:
                     x, memory = self.layers[i](x, mask, memory = memory)
+                    self.extra_loss += self.layers[i].extra_loss
             return x.permute(1, 0, 2)
         else:
         

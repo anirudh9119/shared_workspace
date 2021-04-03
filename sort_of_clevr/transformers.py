@@ -4,6 +4,7 @@ import torch.nn as nn
 import types
 import math
 import numpy as np
+from transformer_utilities.quantize import Quantize
 
 args = types.SimpleNamespace()
 args.use_module_communication = 'true'
@@ -102,6 +103,7 @@ class TransformerEncoder(nn.Module):
             args.use_topk = use_topk
             args.topk = topk
 
+            #quantize = Quantize(embed_dim, 8192)
 
             args.encoder_embed_dim = embed_dim
             self.share_parameters = share_parameters
@@ -112,6 +114,7 @@ class TransformerEncoder(nn.Module):
                 for i in range(self.num_layers):
                     layer_lst.append(TransformerEncoderLayerVanilla(args))
                     print('flmklsd')
+                    #layer_lst[-1].quantize = quantize
                 self.layers = nn.ModuleList(layer_lst)
         else:
             #args.encoder_embed_dim = inp_dim
@@ -150,6 +153,7 @@ class TransformerEncoder(nn.Module):
 
 
         if not self.functional:
+            self.extra_loss = 0.0
             if self.shared_memory_attention:
                 memory_size = int(self.shared_memory_percentage * x.size(0))
 
@@ -169,8 +173,10 @@ class TransformerEncoder(nn.Module):
             for i in range(self.num_layers):
                 if self.share_parameters:
                     x, memory = self.enc(x, mask, memory = memory)
+                    self.extra_loss += self.enc.extra_loss
                 else:
                     x, memory = self.layers[i](x, mask, memory = memory)
+                    self.extra_loss += self.layers[i].extra_loss
             return x.permute(1, 0, 2)
         else:
         

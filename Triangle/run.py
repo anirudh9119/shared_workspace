@@ -4,6 +4,7 @@ import logging
 import argparse
 import numpy as np
 
+import random
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -11,6 +12,7 @@ import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
+from torchvision.utils import save_image
 
 from transformers import TransformerEncoder #FunctionalVisionTransformer, ViT
 from einops import rearrange, repeat
@@ -36,7 +38,7 @@ parser.add_argument('--num_templates', default=12, type=int, help='num of templa
 parser.add_argument('--num_heads', default=4, type=int, help='num of heads in Multi Head attention layer')
 parser.add_argument('--batch_size', default=64, type=int, help='batch_size to use')
 parser.add_argument('--patch_size', default=4, type=int, help='patch_size for transformer')
-parser.add_argument('--epochs', default=200, type=int, help='num of epochs to train')
+parser.add_argument('--epochs', default=400, type=int, help='num of epochs to train')
 parser.add_argument('--lr', default=0.0001, type=float, help='learning rate')
 parser.add_argument('--dropout', default=0.1, type=float, help='dropout')
 parser.add_argument('--name', default="model", type=str, help='Model name for logs and checkpoint')
@@ -264,17 +266,24 @@ class model(nn.Module):
     def forward(self, img, mask = None):
         p = self.patch_size
         #print(img.size())
+
+        #if random.uniform(0,1) < 0.01:
+        #    print('img shape', img.shape)
+        #    print('patch size', p)
+        #    save_image(img[0:10], 'inp_img.png')
+
         x = rearrange(img, 'b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = p, p2 = p)
         #print(x.size())
         #print(x.type())
         x = self.patch_to_embedding(x)
 
         b, n, _ = x.shape
-        #print(x.shape)
 
         cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
         x = torch.cat((cls_tokens, x), dim=1)
         #print(x.size())
+
+        #print('x shape before net', x.shape)
 
         x = self.net(x)
 
@@ -364,6 +373,8 @@ def train(epoch):
         outputs = net(inputs)
         outputs = pre_loss_fn(outputs)
         loss = criterion(outputs, targets)
+        #print('normal loss', loss, 'extra loss', net.net.extra_loss)
+        loss += net.net.extra_loss
         loss.backward()
         optimizer.step()
 
@@ -431,7 +442,8 @@ def test(epoch):
         best_acc = acc
 
 #logging.info("Starting Training...")
-for epoch in range(start_epoch, start_epoch+200):
+for epoch in range(start_epoch, start_epoch+400):
     train(epoch)
     test(epoch)
     scheduler.step()
+    print("BEST ACCURACY SO FAR", best_acc)

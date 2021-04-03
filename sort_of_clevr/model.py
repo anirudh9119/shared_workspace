@@ -62,6 +62,9 @@ class BasicModel(nn.Module):
         self.optimizer.zero_grad()
         output = self(input_img, input_qst)
         loss = F.nll_loss(output, label)
+        #print('normal loss', loss)
+        #print('extra', self.extra_loss)
+        loss += self.extra_loss
         loss.backward()
         self.optimizer.step()
         pred = output.data.max(1)[1]
@@ -318,6 +321,7 @@ class Transformer(BasicModel):
         #print(x.size())
 
         x = self.net(x)
+        self.extra_loss = self.net.extra_loss
 
         x = F.log_softmax(self.mlp_head(x[:,0]), dim = 1)
 

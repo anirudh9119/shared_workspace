@@ -1,13 +1,16 @@
 #!/bin/bash
 #source ~/.bashrc
-source ~/anirudh/anaconda3/etc/profile.d/conda.sh
-echo Running on $HOSTNAME
-conda activate eaitorch1
+#source ~/anirudh/anaconda3/etc/profile.d/conda.sh
+#echo Running on $HOSTNAME
+#conda activate eaitorch1
 
-python sort_of_clevr_generator.py
+#python3 sort_of_clevr_generator.py
 
-python main.py --model=RN      --epochs=20      --relation-type=binary
+python3 main.py --model=Transformer      --epochs=100      --relation-type=binary --seed $1
 
-python main.py --model=RN      --epochs=20      --relation-type=ternary
+#python3 main.py --model=RN      --epochs=20      --relation-type=ternary
 
-python main.py --model=CNN_MLP --epochs=100
+#python3 main.py --model=CNN_MLP --epochs=100
+
+
+

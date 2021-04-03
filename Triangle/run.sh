@@ -2,13 +2,25 @@
 
 #run.sh default Triangle 0 4 0.1 100 4 4 8 0.0001 64 128 2 2 True 6 True False 10 False 4 False 3
 
+
+# CUDA_VISIBLE_DEVICES=2 bash run.sh 4 256 512 True False 20 False 1 8
+
+# baselines
+#CUDA_VISIBLE_DEVICES=2 bash run.sh 4 256 512 True False 20 False 41 8
+#CUDA_VISIBLE_DEVICES=2 bash run.sh 4 256 512 True False 20 False 45 8
+#CUDA_VISIBLE_DEVICES=2 bash run.sh 4 256 512 True False 20 False 59 8
+#CUDA_VISIBLE_DEVICES=2 bash run.sh 4 256 512 True False 20 False 68 8
+
+#no param sharing
+# CUDA_VISIBLE_DEVICES=0 bash run.sh 4 256 512 False False 20 False 1 8
+
 model=default
 data='Triangle'
 version=0
 num_layers=$1
 num_templates=1
 dropout=0.1
-epochs=100
+epochs=200
 patch_size=4
 num_heads=4
 batch_size=64

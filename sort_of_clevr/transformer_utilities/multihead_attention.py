@@ -21,6 +21,9 @@ from .fairseq_dropout import FairseqDropout
 from .attention_rim import MultiHeadAttention as MHAMemory
 from .quant_noise import quant_noise
 
+#from .quantize import Quantize
+#from .quantize2 import VectorQuantizer as VectorQuantizer
+
 from .group_linear_layer import GroupLinearLayer
 from .relational_memory_volatile import RelationalMemory
 #from .relational_memory_lstm import RelationalMemory
@@ -78,6 +81,12 @@ class MultiheadAttention(nn.Module):
 
         self.head_dim = embed_dim // num_heads
         self.shared_memory_attention = shared_memory_attention
+        
+        #self.quantize_q = VectorQuantizer(2048, self.head_dim, 0.25)
+        #self.quantize_k = VectorQuantizer(2048, self.head_dim, 0.25)
+        #self.quantize_v = VectorQuantizer(2048, self.head_dim, 0.25)
+        #print('make quantize in mha', 'embed dim', self.head_dim)
+
 
         print('total heads', self.num_heads)
         print('head dim', self.head_dim)
@@ -351,7 +360,6 @@ class MultiheadAttention(nn.Module):
                     q_proj_weight=self.q_proj.weight,
                     k_proj_weight=self.k_proj.weight,
                     v_proj_weight=self.v_proj.weight,
-
                     ) 
 
             return out, memory, weights
@@ -371,6 +379,7 @@ class MultiheadAttention(nn.Module):
             t1 = time.time()
 
             if self.self_attention:
+                #print('calling q/k/v self attention')
                 q = self.q_proj(query)
                 k = self.k_proj(query)
                 v = self.v_proj(query)
@@ -432,9 +441,21 @@ class MultiheadAttention(nn.Module):
                     .transpose(0, 1)
                 )
 
-            
+            #self.extra_loss = 0.0
+            #print('qkv shapes', q.shape, k.shape, v.shape)
+            #q_before = q*1.0
+            #diff_loss, q, _, _ = self.quantize_q(q)
+            #self.extra_loss += diff_loss
 
+            #print('dist', q[0,0], 'before', q_before[0,0])
 
+            #diff_loss, k, _, _ = self.quantize_k(k)
+            #self.extra_loss += diff_loss
+
+            #diff_loss, v, _, _ = self.quantize_v(v)
+            #self.extra_loss += diff_loss
+
+            #print('extra loss', self.extra_loss)
 
             if saved_state is not None:
                 # saved states are stored with shape (bsz, num_heads, seq_len, head_dim)

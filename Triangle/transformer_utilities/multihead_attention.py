@@ -6,13 +6,14 @@
 
 import math
 from typing import Dict, Optional, Tuple
+from torchvision.utils import save_image
 
 import time
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 from torch.nn import Parameter
-
+import random
 
 #import models.fairseq_util
 import transformer_utilities.fairseq_utils as utils
@@ -20,6 +21,8 @@ import transformer_utilities.fairseq_utils as utils
 from .fairseq_dropout import FairseqDropout
 from .attention_rim import MultiHeadAttention as MHAMemory
 from .quant_noise import quant_noise
+
+from .attribute_filter import AttributeFilter
 
 from .group_linear_layer import GroupLinearLayer
 from .relational_memory_volatile import RelationalMemory
@@ -72,6 +75,11 @@ class MultiheadAttention(nn.Module):
         self.head_dim = embed_dim // num_heads
         self.shared_memory_attention = shared_memory_attention
 
+        #self.att_filt = AttributeFilter(256,2,3,topk=None,query_sigmoid=False) #was using 6/10
+        #print('making attribute filter layer')
+
+        self.att_filt = None
+
         print('total heads', self.num_heads)
         print('head dim', self.head_dim)
 
@@ -92,11 +100,17 @@ class MultiheadAttention(nn.Module):
         assert not self.self_attention or self.qkv_same_dim, (
             "Self-attention requires query, key and " "value to be of the same size"
         )
+
+        if self.att_filt is None:
+            out_proj_mult = 1
+        else:
+            out_proj_mult = 1
+
         if not self.shared_memory_attention:
             self.k_proj = quant_noise(GroupLinearLayer(self.kdim//nblocks, embed_dim//nblocks, nblocks, bias=bias), q_noise, qn_block_size)
             self.v_proj = quant_noise(GroupLinearLayer(self.vdim//nblocks, embed_dim//nblocks, nblocks, bias=bias), q_noise, qn_block_size)
             self.q_proj = quant_noise(GroupLinearLayer(embed_dim//nblocks, embed_dim//nblocks, nblocks, bias=bias), q_noise, qn_block_size)
-            self.out_proj = quant_noise(GroupLinearLayer(embed_dim//nblocks, embed_dim//nblocks, nblocks, bias=bias), q_noise, qn_block_size)
+            self.out_proj = quant_noise(GroupLinearLayer(out_proj_mult * embed_dim//nblocks, embed_dim//nblocks, nblocks, bias=bias), q_noise, qn_block_size)
 
             if add_bias_kv:
                 self.bias_k = Parameter(torch.Tensor(1, 1, embed_dim))
@@ -529,10 +543,32 @@ class MultiheadAttention(nn.Module):
             if before_softmax:
                 return attn_weights, v
 
-            attn_weights_float = utils.softmax(
-                attn_weights, dim=-1, onnx_trace=self.onnx_trace
-            )
-            attn_weights = attn_weights_float.type_as(attn_weights)
+            if self.att_filt is None:
+                attn_weights_float = utils.softmax(
+                    attn_weights, dim=-1, onnx_trace=self.onnx_trace
+                )
+                attn_weights = attn_weights_float.type_as(attn_weights)
+                self.extra_loss = 0.0
+            else:
+                attn_weights_float, shared_result = self.att_filt(query.permute(1,0,2), key.permute(1,0,2), attn_weights, use_sparse=False)
+                attn_weights = attn_weights_float
+                #self.extra_loss = 1e-6 * self.att_filt.get_l1()
+                self.extra_loss = 0.0
+                #self.extra_loss += 1e-6 * torch.mean(torch.abs(self.att_filt.q_postatt.flatten()))
+                #self.extra_loss += 1e-6 * torch.mean(torch.abs(self.att_filt.k_postatt.flatten()))
+
+                if random.uniform(0,1) < 0.0002:
+                    #bs, pos1, self.num_att, self.num_att_vals
+                    print('q att shape', self.att_filt.q_postatt.shape)
+                    for k in range(self.att_filt.num_att_vals):
+                        bs_ex, _, _, _, _ = self.att_filt.q_postatt.shape
+                        save_image(self.att_filt.q_postatt[:,:-1,0,k:k+1,0].permute(0,2,1).reshape((bs_ex, 1, 16,16)), 'q_img_%d.png' % k, normalize=True)
+                        save_image(self.att_filt.k_postatt[:,:-1,0,k:k+1,0].permute(0,2,1).reshape((bs_ex, 1, 16,16)), 'k_img_%d.png' % k, normalize=True)
+                    print('q-att', self.att_filt.q_postatt.shape, self.att_filt.q_postatt[0,:,:,:,0])
+                    print('k-att', self.att_filt.k_postatt[0])
+                    print('outer-prod', self.att_filt.outer_prod[0])
+                    print('outer-prod mean', self.att_filt.outer_prod[0].mean())
+
             attn_probs = self.dropout_module(attn_weights)
 
             assert v is not None
@@ -549,6 +585,15 @@ class MultiheadAttention(nn.Module):
                 attn = attn.contiguous().view(tgt_len, bsz, embed_dim)
             else:
                 attn = attn.transpose(0, 1).contiguous().view(tgt_len, bsz, embed_dim)
+            
+            #if self.att_filt is not None:
+                #print('attn shape pre', attn.shape)
+                #print('shared result shape', shared_result.shape)
+                #print('out proj', self.out_proj)
+             #   shared_result = shared_result.transpose(0, 1).contiguous().view(tgt_len, bsz, embed_dim)
+                #print('attn norm', torch.linalg.norm(attn), 'shared norm', torch.linalg.norm(shared_result))
+             #   attn = torch.cat([attn, shared_result], dim=2)
+            
             attn = self.out_proj(attn)
             attn_weights: Optional[Tensor] = None
             if need_weights:
