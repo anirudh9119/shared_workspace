@@ -63,7 +63,7 @@ class TransformerEncoderLayerVanilla(nn.Module):
         self.final_layer_norm = LayerNorm(self.embed_dim)
 
         #self.quantize = Quantize(self.embed_dim, 4096, 1)
-        self.quantize = VQVAEQuantize(self.embed_dim, 4096, self.embed_dim, 16)
+        #self.quantize = VQVAEQuantize(self.embed_dim, 4096, self.embed_dim, 16)
 
         print('making vanilla transformer encoder layer!')
 
@@ -148,8 +148,8 @@ class TransformerEncoderLayerVanilla(nn.Module):
 
         self.extra_loss = 0.0
 
-        x, diff_loss, quantize_ind = self.quantize(x)
-        self.extra_loss = diff_loss
+        #x, diff_loss, quantize_ind = self.quantize(x)
+        #self.extra_loss = diff_loss
 
         x = F.dropout(x, p=self.dropout, training=self.training)
 

@@ -80,7 +80,7 @@ class VQVAEQuantize(nn.Module):
 
         z_q = z_q.reshape((B, H, self.groups, self.embedding_dim//self.groups)).reshape((B, H, self.embedding_dim))
 
-        if random.uniform(0,1) < 0.001:
+        if random.uniform(0,1) < 0.0001:
             print('encoded ind', ind)
             print('before', z[0,0])
             print('after', z_q[0,0])
