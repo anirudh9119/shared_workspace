@@ -17,7 +17,7 @@ from scipy.cluster.vq import kmeans2
 
 
 
-class VQVAEQuantize(nn.Module):
+class Quantize(nn.Module):
     """
     Neural Discrete Representation Learning, van den Oord et al. 2017
     https://arxiv.org/abs/1711.00937
@@ -26,9 +26,10 @@ class VQVAEQuantize(nn.Module):
     https://github.com/deepmind/sonnet/blob/v2/sonnet/src/nets/vqvae.py
     https://github.com/deepmind/sonnet/blob/v2/examples/vqvae_example.ipynb
     """
-    def __init__(self, num_hiddens, n_embed, embedding_dim, groups):
+    def __init__(self, num_hiddens, n_embed, groups):
         super().__init__()
 
+        embedding_dim = num_hiddens
         self.embedding_dim = embedding_dim
         self.n_embed = n_embed
         self.groups = groups

@@ -13,6 +13,7 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 from torch.nn import Parameter
 
+from transformer_utilities.quantize4 import Quantize_onehot_gumbel, Quantize_qk
 
 #import models.fairseq_util
 import transformer_utilities.fairseq_utils as utils
@@ -87,6 +88,12 @@ class MultiheadAttention(nn.Module):
         #self.quantize_v = VectorQuantizer(2048, self.head_dim, 0.25)
         #print('make quantize in mha', 'embed dim', self.head_dim)
 
+        n_codebook_embedding = 64
+        n_quantization_segments = 4
+
+        #self.quantize = Quantize_onehot_gumbel(self.head_dim, n_codebook_embedding, n_quantization_segments)
+
+        #print('quantize in mha', 'codebook size', n_codebook_embedding, 'segments', n_quantization_segments)
 
         print('total heads', self.num_heads)
         print('head dim', self.head_dim)
@@ -376,6 +383,7 @@ class MultiheadAttention(nn.Module):
             saved_state = None
         if not self.shared_memory_attention:
 
+
             t1 = time.time()
 
             if self.self_attention:
@@ -440,6 +448,11 @@ class MultiheadAttention(nn.Module):
                     .view(-1, bsz * self.num_heads, self.head_dim)
                     .transpose(0, 1)
                 )
+
+            #self.extra_loss = 0.0
+            #q,k,diff_loss,_ = Quantize_qk(self.quantize, q, k)
+            #self.extra_loss += diff_loss
+
 
             #self.extra_loss = 0.0
             #print('qkv shapes', q.shape, k.shape, v.shape)

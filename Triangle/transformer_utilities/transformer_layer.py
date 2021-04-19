@@ -12,13 +12,18 @@ import transformer_utilities.fairseq_utils as utils
 
 from .layer_norm import LayerNorm
 from .multihead_attention import MultiheadAttention
+#from .quantize4 import MultiHeadAttention_quantizedQK
 from .relational_memory import RelationalMemory
 from .group_linear_layer import GroupLinearLayer
 #from fairseq.modules.shared_group_linear_layer import SharedGroupLinearLayer
 
 #from .quantize import Quantize
 
-from .quantize3 import VQVAEQuantize as VQVAEQuantize
+#from .quantize3 import VQVAEQuantize as VQVAEQuantize
+
+from .quantize6 import Quantize as Quantize
+
+#from .quantize5 import Quantize as Quantize
 
 from .basic_mha import MemoryAttention
 
@@ -63,9 +68,9 @@ class TransformerEncoderLayerVanilla(nn.Module):
         self.final_layer_norm = LayerNorm(self.embed_dim)
 
         #self.quantize = Quantize(self.embed_dim, 4096, 1)
-        self.quantize = VQVAEQuantize(self.embed_dim, 2048, self.embed_dim, 8)
+        #self.quantize = VQVAEQuantize(self.embed_dim, 4096, self.embed_dim, 16)
 
-        #self.quantize_fcn = VQVAEQuantize(self.embed_dim, 2048, self.embed_dim, 8)
+        self.quantize = Quantize(self.embed_dim, 1024, 16)
 
         print('making vanilla transformer encoder layer!')
 
@@ -81,18 +86,19 @@ class TransformerEncoderLayerVanilla(nn.Module):
         return nn.Linear(input_dim, output_dim)
 
     def build_self_attention(self, embed_dim, args):
+        
         return MultiheadAttention(
-            embed_dim,
-            args.encoder_attention_heads,
-            dropout=args.attention_dropout,
-            self_attention=args.self_attention,
-            shared_memory_attention = args.shared_memory_attention,
-            use_topk = args.use_topk,
-            topk = args.topk,
-            num_steps = args.num_steps,
-            mem_slots = args.mem_slots,
-            null_attention = args.null_attention,
-            regressive = args.regressive
+                embed_dim,
+                args.encoder_attention_heads,
+                dropout=args.attention_dropout,
+                self_attention=args.self_attention,
+                shared_memory_attention = args.shared_memory_attention,
+                use_topk = args.use_topk,
+                topk = args.topk,
+                num_steps = args.num_steps,
+                mem_slots = args.mem_slots,
+                null_attention = args.null_attention,
+                regressive = args.regressive
         )
 
     def upgrade_state_dict_named(self, state_dict, name):
@@ -138,6 +144,8 @@ class TransformerEncoderLayerVanilla(nn.Module):
         # MultiheadAttention. We will do this later on.
         #print(state is not None)
 
+        self.extra_loss = 0.0
+
         x, memory, _ = self.self_attn(
             query=x,
             key=x,
@@ -146,9 +154,7 @@ class TransformerEncoderLayerVanilla(nn.Module):
             attn_mask=attn_mask,
             memory = memory
         )
-        #self.extra_loss = self.self_attn.extra_loss
-
-        self.extra_loss = 0.0
+        #self.extra_loss += self.self_attn.extra_loss
 
         x, diff_loss, quantize_ind = self.quantize(x)
         self.extra_loss += diff_loss
@@ -165,11 +171,12 @@ class TransformerEncoderLayerVanilla(nn.Module):
         x = self.activation_fn(self.fc1(x))
         x = F.dropout(x, p=float(self.activation_dropout), training=self.training)
         x = self.fc2(x)
-        
-        #x, diff_loss, quantize_ind = self.quantize_fcn(x)
-        #self.extra_loss += diff_loss
-
         x = F.dropout(x, p=self.dropout, training=self.training)
+        
+        #x, diff_loss, quantize_ind = self.quantize(x)
+        #self.extra_loss = diff_loss * 0.1
+        #print('x.mean()', x.mean())
+        #print('diff loss', diff_loss)
 
         x = residual + x
         if not self.normalize_before:
