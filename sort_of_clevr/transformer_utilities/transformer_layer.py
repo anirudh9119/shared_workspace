@@ -21,7 +21,7 @@ from .group_linear_layer import GroupLinearLayer
 
 #from .quantize3 import VQVAEQuantize as VQVAEQuantize
 
-from .quantize6 import Quantize as Quantize
+from .quantize3 import Quantize as Quantize
 
 #from .quantize5 import Quantize as Quantize
 
@@ -70,7 +70,7 @@ class TransformerEncoderLayerVanilla(nn.Module):
         #self.quantize = Quantize(self.embed_dim, 4096, 1)
         #self.quantize = VQVAEQuantize(self.embed_dim, 4096, self.embed_dim, 16)
 
-        self.quantize = Quantize(self.embed_dim, 1024, 8)
+        #self.quantize = Quantize(self.embed_dim, 4096, 16)
 
         print('making vanilla transformer encoder layer!')
 
@@ -156,8 +156,8 @@ class TransformerEncoderLayerVanilla(nn.Module):
         )
         #self.extra_loss += self.self_attn.extra_loss
 
-        x, diff_loss, quantize_ind = self.quantize(x)
-        self.extra_loss += diff_loss
+        #x, diff_loss, quantize_ind = self.quantize(x)
+        #self.extra_loss += 1.0 * diff_loss
 
         x = F.dropout(x, p=self.dropout, training=self.training)
 

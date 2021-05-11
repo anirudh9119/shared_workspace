@@ -110,7 +110,7 @@ class TransformerEncoder(nn.Module):
             else:
                 layer_lst = []
                 for i in range(self.num_layers):
-                    layer_lst.append(TransformerEncoderLayerVanilla(args))
+                    layer_lst.append(TransformerEncoderLayerVanilla(args, layer_ind=i))
                     print('flmklsd')
                 self.layers = nn.ModuleList(layer_lst)
         else:

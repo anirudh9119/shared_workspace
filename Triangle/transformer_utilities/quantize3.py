@@ -17,7 +17,7 @@ from scipy.cluster.vq import kmeans2
 
 
 
-class VQVAEQuantize(nn.Module):
+class Quantize(nn.Module):
     """
     Neural Discrete Representation Learning, van den Oord et al. 2017
     https://arxiv.org/abs/1711.00937
@@ -26,17 +26,20 @@ class VQVAEQuantize(nn.Module):
     https://github.com/deepmind/sonnet/blob/v2/sonnet/src/nets/vqvae.py
     https://github.com/deepmind/sonnet/blob/v2/examples/vqvae_example.ipynb
     """
-    def __init__(self, num_hiddens, n_embed, embedding_dim, groups):
+    def __init__(self, num_hiddens, n_embed, groups):
         super().__init__()
 
+        embedding_dim = num_hiddens
         self.embedding_dim = embedding_dim
         self.n_embed = n_embed
         self.groups = groups
 
         self.kld_scale = 10.0
 
-        #self.proj = nn.Linear(num_hiddens, embedding_dim)
+        self.out_proj = nn.Linear(num_hiddens, num_hiddens)
         self.embed = nn.Embedding(n_embed, embedding_dim//groups)
+
+        self.ind_lst = []
 
         self.register_buffer('data_initialized', torch.zeros(1))
 
@@ -80,11 +83,28 @@ class VQVAEQuantize(nn.Module):
 
         z_q = z_q.reshape((B, H, self.groups, self.embedding_dim//self.groups)).reshape((B, H, self.embedding_dim))
 
-        if random.uniform(0,1) < 0.0001:
+        if True and random.uniform(0,1) < 0.00001:
             print('encoded ind', ind)
             print('before', z[0,0])
             print('after', z_q[0,0])
             print('extra loss on layer', diff)
+
+        if random.uniform(0,1) < 0.00001 or (not self.training and random.uniform(0,1) < 0.00001): 
+            if self.training:
+                print('training mode!')
+            else:
+                print('test mode!')
+            ind_lst = list(set(ind.flatten().cpu().numpy().tolist()))
+            
+            if self.training: 
+                self.ind_lst += ind_lst
+                self.ind_lst = self.ind_lst[:50000]
+                print('train ind lst', sorted(list(set(self.ind_lst))))
+            else:
+                print('test ind lst', sorted(list(set(ind_lst))))
+
+
+        z_q = self.out_proj(z_q)
 
         return z_q, diff, ind
 

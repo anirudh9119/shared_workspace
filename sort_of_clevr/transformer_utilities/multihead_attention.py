@@ -589,6 +589,7 @@ class MultiheadAttention(nn.Module):
             else:
                 attn = attn.transpose(0, 1).contiguous().view(tgt_len, bsz, embed_dim)
             attn = self.out_proj(attn)
+            #NOTE: removed out_proj
             attn_weights: Optional[Tensor] = None
             if need_weights:
                 attn_weights = attn_weights_float.view(

@@ -21,7 +21,7 @@ from .group_linear_layer import GroupLinearLayer
 
 #from .quantize3 import VQVAEQuantize as VQVAEQuantize
 
-from .quantize6 import Quantize as Quantize
+from .quantize3 import Quantize as Quantize
 
 #from .quantize5 import Quantize as Quantize
 
@@ -49,7 +49,7 @@ class TransformerEncoderLayerVanilla(nn.Module):
         args (argparse.Namespace): parsed command-line arguments
     """
 
-    def __init__(self, args, out_proj = None):
+    def __init__(self, args, layer_ind, out_proj = None):
         super().__init__()
         self.embed_dim = args.encoder_embed_dim
         self.self_attn = self.build_self_attention(self.embed_dim, args)
@@ -66,11 +66,15 @@ class TransformerEncoderLayerVanilla(nn.Module):
         self.fc1 = self.build_fc1(self.embed_dim, args.encoder_ffn_embed_dim)
         self.fc2 = self.build_fc2(args.encoder_ffn_embed_dim, self.embed_dim)
         self.final_layer_norm = LayerNorm(self.embed_dim)
+        
+        use_quantize = False
 
-        #self.quantize = Quantize(self.embed_dim, 4096, 1)
-        #self.quantize = VQVAEQuantize(self.embed_dim, 4096, self.embed_dim, 16)
-
-        self.quantize = Quantize(self.embed_dim, 1024, 16)
+        if use_quantize and layer_ind >= 3:
+            self.quantize = Quantize(self.embed_dim//2, 4096, 16)
+            print('quantize layer')
+        else:
+            print('no quantize')
+            self.quantize = None
 
         print('making vanilla transformer encoder layer!')
 
@@ -156,8 +160,11 @@ class TransformerEncoderLayerVanilla(nn.Module):
         )
         #self.extra_loss += self.self_attn.extra_loss
 
-        x, diff_loss, quantize_ind = self.quantize(x)
-        self.extra_loss += diff_loss
+        if self.quantize is not None:
+            x_embed = x[:,:,0:x.shape[2]//2]
+            x_embed, diff_loss, quantize_ind = self.quantize(x_embed)
+            self.extra_loss += 1.0 * diff_loss
+            x = torch.cat([x_embed, x[:,:,x.shape[2]//2:]], dim=2)
 
         x = F.dropout(x, p=self.dropout, training=self.training)
 
