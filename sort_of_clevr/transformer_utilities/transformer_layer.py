@@ -67,10 +67,7 @@ class TransformerEncoderLayerVanilla(nn.Module):
         self.fc2 = self.build_fc2(args.encoder_ffn_embed_dim, self.embed_dim)
         self.final_layer_norm = LayerNorm(self.embed_dim)
 
-        #self.quantize = Quantize(self.embed_dim, 4096, 1)
-        #self.quantize = VQVAEQuantize(self.embed_dim, 4096, self.embed_dim, 16)
-
-        #self.quantize = Quantize(self.embed_dim, 4096, 16)
+        self.quantize = Quantize(self.embed_dim, 4096, 16)
 
         print('making vanilla transformer encoder layer!')
 
@@ -154,10 +151,9 @@ class TransformerEncoderLayerVanilla(nn.Module):
             attn_mask=attn_mask,
             memory = memory
         )
-        #self.extra_loss += self.self_attn.extra_loss
 
-        #x, diff_loss, quantize_ind = self.quantize(x)
-        #self.extra_loss += 1.0 * diff_loss
+        x, diff_loss, quantize_ind = self.quantize(x)
+        self.extra_loss += 1.0 * diff_loss
 
         x = F.dropout(x, p=self.dropout, training=self.training)
 
