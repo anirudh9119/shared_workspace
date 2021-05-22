@@ -1,5 +1,5 @@
 from .isab import *
-from models.pos_enc import PositionEncoder
+from .pos_enc import PositionEncoder
 
 class DeepSet(nn.Module):
     def __init__(self, dim_input, num_outputs, dim_output, dim_hidden=128):
