@@ -45,9 +45,9 @@ class SetTransformer(nn.Module):
         #         ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln))
         
     def forward(self, X):
-        X.permute(1,0,2) #self.pe expects T,B,D
+        X=X.permute(1,0,2) #self.pe expects T,B,D
         X = self.pe(X)
-        X.permute(1,0,2) #layer expects B,T,D
+        X=X.permute(1,0,2) #layer expects B,T,D
         for layer in self.layers:
             X=layer(X)
         return X
