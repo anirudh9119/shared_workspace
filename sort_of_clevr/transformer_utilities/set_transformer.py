@@ -1,4 +1,5 @@
 from .isab import *
+from models.pos_enc import PositionEncoder
 
 class DeepSet(nn.Module):
     def __init__(self, dim_input, num_outputs, dim_output, dim_hidden=128):
@@ -31,11 +32,22 @@ class SetTransformer(nn.Module):
     def __init__(self, dim_input,
             num_inds=32, dim_hidden=128, num_heads=4, ln=True, num_layers = 4):
         super(SetTransformer, self).__init__()
-        self.enc = nn.Sequential(
-                ISAB(dim_input, dim_hidden, num_heads, num_inds, ln=ln),
-                ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln),
-                ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln),
-                ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln))
+        self.pe = PositionEncoder(dim_input)
+        layers = []
+        layers.append(ISAB(dim_input, dim_hidden, num_heads, num_inds, ln=ln))
+        for _ in range(num_layers-1):
+            layers.append(ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln))
+        self.layers = nn.ModuleList(layers)
+        # self.enc = nn.Sequential(
+        #         ISAB(dim_input, dim_hidden, num_heads, num_inds, ln=ln),
+        #         ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln),
+        #         ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln),
+        #         ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln))
         
     def forward(self, X):
-        return self.enc(X)
+        X.permute(1,0,2) #self.pe expects T,B,D
+        X = self.pe(X)
+        X.permute(1,0,2) #layer expects B,T,D
+        for layer in self.layers:
+            X=layer(X)
+        return X
