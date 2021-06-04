@@ -1,4 +1,4 @@
-# Synchronizing Neural Modules Through a Shared Workspace
+# Coordination Among Neural Modules Through a Shared Global Workspace}
 
 This repository contains the code to reproduce the `relational reasoning: sort_of_clever` and `detecting equilateral triangles` tasks from our paper.  
 
@@ -50,6 +50,10 @@ sh run.sh 4 256 512 False False 20 False 1 8 functional
 ## Sort-of-CLEVR
 The following commands to be executed from inside in the `sort_of_clevr` folder.
 
+Dataset generation:
+```
+python sort_of_clevr_generator.py
+```
 
 ```
 sh run_transformer.sh h_dim num_layers share_vanilla_parameters use_topk topk shared_memory_attention mem_slots seed
