@@ -2,7 +2,7 @@
 
 #run.sh default Triangle 0 4 0.1 100 4 4 8 0.0001 64 128 2 2 True 6 True False 10 False 4 False 3
 
-model=default
+
 data='Triangle'
 version=0
 num_layers=$1
@@ -26,7 +26,7 @@ shared_memory_attention=${7}
 null_attention=False 
 seed=${8}
 mem_slots=${9}
-
+model=${10}
 
 
 

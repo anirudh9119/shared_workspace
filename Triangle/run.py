@@ -12,6 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 
+from transformer_utilities.set_transformer import SetTransformer
 from transformers import TransformerEncoder #FunctionalVisionTransformer, ViT
 from einops import rearrange, repeat
 from dataset import TriangleDataset
@@ -339,8 +340,6 @@ def train(epoch):
     train_loss = 0
     correct = 0
     total = 0
-    if args.model == 'functional':
-        net.net.reset_schema_stats()
     for batch_idx, (inputs, targets) in enumerate(trainloader):
         inputs, targets = inputs.to(device), targets.to(device)
         #print(inputs.shape)
@@ -368,9 +367,6 @@ def train(epoch):
             #logging.info('[%d, %5d] loss: %.3f accuracy:%.3f' %
             #     (epoch + 1, batch_idx + 1, train_loss / (batch_idx+1), 100.*correct/total))
             
-            if args.model == 'functional':
-                net.net.print_schema_stats()
-                net.net.reset_schema_stats()
 
 
 def test(epoch):
@@ -379,8 +375,6 @@ def test(epoch):
     test_loss = 0
     correct = 0
     total = 0
-    if args.model == 'functional':
-        net.net.reset_schema_stats()
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
@@ -397,8 +391,6 @@ def test(epoch):
                 correct += predicted.eq(targets).sum().item()
 
     # Save checkpoint.
-    if args.model == 'functional':
-        net.net.print_schema_stats()
     acc = 100.*correct/total
     print("test_accuracy is %.3f after epochs %d"%(acc,epoch))
     #logging.info("test_accuracy is %.3f after epochs %d"%(acc,epoch))

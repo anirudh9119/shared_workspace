@@ -29,19 +29,22 @@ mem_slots: Number of slots in memory
 To reproduce experiments in paper:
 ```
 TR + HSW
-sh run.sh 4 256 512 True True 20 True 1 8
+sh run.sh 4 256 512 True True 20 True 1 8 default
 
 TR + SSW
-sh run.sh 4 256 512 True False 20 True 1 8
+sh run.sh 4 256 512 True False 20 True 1 8 default
 
 TR 
-sh run.sh 4 256 512 True False 20 False 1 8
+sh run.sh 4 256 512 True False 20 False 1 8 default
 
 STR 
-sh run.sh 4 256 512 True True 20 False 1 8
+sh run.sh 4 256 512 True True 20 False 1 8 default
 
 TR + HC
-sh run.sh 4 256 512 False False 20 False 1 8
+sh run.sh 4 256 512 False False 20 False 1 8 default
+
+ISAB
+sh run.sh 4 256 512 False False 20 False 1 8 functional
 ```
 
 ## Sort-of-CLEVR
@@ -54,16 +57,19 @@ sh run_transformer.sh h_dim num_layers share_vanilla_parameters use_topk topk sh
 To reproduce experiments in paper:
 ```
 TR + HSW
-sh run_transformer.sh 256 4 True True 5 True 8 1
+sh run_transformer.sh 256 4 True True 5 True 8 1 False
 
 TR
-sh run_transformer.sh 256 4 True False 5 False 8 1
+sh run_transformer.sh 256 4 True False 5 False 8 1 False
 
 STR
-sh run_transformer.sh 256 4 True True 5 False 8 1
+sh run_transformer.sh 256 4 True True 5 False 8 1 False
 
 TR + HC
-sh run_transformer.sh 256 4 False False 5 False 8 1
+sh run_transformer.sh 256 4 False False 5 False 8 1 False
+
+ISAB
+sh run_transformer.sh 256 4 False False 5 False 8 1 True
 
 
 ```
