@@ -280,8 +280,10 @@ class Transformer(BasicModel):
         self.question_to_embedding = nn.Linear(18, h_dim)
         #self.question_to_embedding = nn.Linear(1, h_dim)
         self.cls_token = nn.Parameter(torch.randn(1, 1, h_dim))
-
-        self.mlp_head = nn.Linear(h_dim, num_classes)
+        if args.functional:
+            self.mlp_head = nn.Linear(512, num_classes)
+        else:
+            self.mlp_head = nn.Linear(h_dim, num_classes)
         self.optimizer = optim.Adam(self.parameters(), lr=args.lr)
 
     def forward(self, img, qst):
